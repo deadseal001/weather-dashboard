@@ -1,4 +1,15 @@
-var citylist = ["Houston, Texas, US","Dallas, Texas, US"];
+var citylist = [
+    {
+        name: "Houston, Texas, US",
+        lati: 29.7589382,
+        lont: -95.3676974,
+    },
+    {
+        name: "Dallas, Texas, US",
+        lati: 32.7762719,
+        lont: -96.7968559,
+    }
+];
 var citySeq = 0;
 
 // need to solve 
@@ -15,8 +26,10 @@ function loadCitylist(){
         // debugger;
         var cityEl= document.createElement("button");
         cityEl.classList="cityBtn col-12 mt-3 rounded";
-        cityEl.textContent=citylist[citylist.length-1-i];
-        cityEl.setAttribute("data-city",citylist[citylist.length-1-i]);
+        cityEl.textContent=citylist[citylist.length-1-i].name;
+        cityEl.setAttribute("data-lat",citylist[citylist.length-1-i].lati);
+        cityEl.setAttribute("data-lon",citylist[citylist.length-1-i].lont); 
+        cityEl.setAttribute("data-city",citylist[citylist.length-1-i].name);
         cityEl.setAttribute("data-seq",citySeq);
         $("#cities").append(cityEl);
     }
@@ -35,6 +48,10 @@ $(".searchBtn").on("click", function(){
             response.json().then(function(data){
                 console.log(data);
                 var chosenCity= pickCity(data);
+                var weather =data.list[0].weather;
+                var main=data.list[0].main;
+                console.log(weather);
+                console.log(main);
                 //call function to check city. here if there is a list then modal and choose
 
             })
@@ -59,8 +76,11 @@ var pickCity=function(data) {
             var cityCandiEl=document.createElement("button");
             cityCandiEl.classList="cityCandiBtn col-11 mb-2";
             cityCandiEl.setAttribute("data-seq",i);
-            var chosenCity=data[i].name+", "+data[i].state+", "+data[i].country;
-            cityCandiEl.textContent=chosenCity;
+            var chosenCity=[];
+            chosenCity.name=data[i].name+", "+data[i].state+", "+data[i].country;
+                // chosenCity.lat=data[i].lat;
+                // chosenCity.lon=data[i].lon;
+            cityCandiEl.textContent=chosenCity.name;
             var modalCityList= document.querySelector(".modal-citylist");
             modalCityList.appendChild(cityCandiEl);
         }
@@ -72,11 +92,12 @@ var pickCity=function(data) {
             console.log(citySeq);
             $(".cityCandiBtn").remove();
             $('#citiesList-modal').modal('hide');//no function yet
-            console.log("click works");
-            var lat = data[citySeq].lat;
-            var lon = data[citySeq].lon;
-            chosenCity=data[citySeq].name+", "+data[citySeq].state+", "+data[citySeq].country;
-            getWeather(lat,lon,chosenCity);
+            var chosenCity=[];
+            chosenCity.name=data[citySeq].name+", "+data[citySeq].state+", "+data[citySeq].country;
+            chosenCity.lat=data[citySeq].lat;
+            chosenCity.lon=data[citySeq].lon;
+                console.log(chosenCity);
+            getWeather(chosenCity);
             addCity(chosenCity);
         })
         $(".cancelBtn").on("click",function(){
@@ -87,66 +108,110 @@ var pickCity=function(data) {
     }
     else {
         citySeq=0;
-        var lat = data[0].lat;
-        var lon = data[0].lon;
-        var chosenCity=data[0].name+","+data[0].state+","+data[0].country;
-        getWeather(lat,lon,chosenCity);
+        var chosenCity=[];
+        chosenCity.name=data[0].name+","+data[0].state+","+data[0].country;
+        chosenCity.lat=data[0].lat;
+        chosenCity.lon=lon = data[0].lon;
+        console.log(chosenCity);
+        getWeather(chosenCity);
         addCity(chosenCity);
         console.log(chosenCity);
         console.log("no click");
     }
 }
 
-var getWeather=function(lat, lon, chosenCity) {
-    console.log("get weather"+ lat);
-    console.log("get weather"+ lon);
-    console.log("get weather"+ chosenCity);
-    var weathApiUrl="https://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lon+"&appid=9086c76e37dd7754dfe04ec92e3de71d";
+var getWeather=function(chosenCity) {
+    console.log("get weather lat: "+ chosenCity.lat);
+    console.log("get weather lon: "+ chosenCity.lon);
+    console.log("get weather city: "+ chosenCity.name);
+    var currentUrl="https://api.openweathermap.org/data/2.5/weather?lat="+chosenCity.lat+"&lon="+chosenCity.lon+"&units=imperial&appid=9086c76e37dd7754dfe04ec92e3de71d";
+    var weathApiUrl="https://api.openweathermap.org/data/2.5/forecast?lat="+chosenCity.lat+"&lon="+chosenCity.lon+"&units=imperial&appid=9086c76e37dd7754dfe04ec92e3de71d";
+    // get current weather
+    fetch(currentUrl)
+    .then(function(response){
+        if(response.ok){
+            response.json().then(function(data){
+                console.log(data);
+                displayCurrentWeather(data);
+            })
+        } else {
+            alert("Error: City "+ chosenCity.name+" Not Found");
+        }
+    });
+
+    // get weather forecast
     fetch(weathApiUrl)
     .then(function(response){
         if(response.ok){
             response.json().then(function(data){
                 console.log(data);
-                //call function to display weather
+                displayWeatherForecast(data);
 
             })
         } else {
-            alert("Error: City "+ chosenCity+" Not Found");
+            alert("Error: City "+ chosenCity.name+" Not Found");
         }
-    })
+    });
 }
 
 var addCity=function(chosenCity){
     var cityIndex=citylist.indexOf(chosenCity);
+    console.log=cityIndex;
     if(cityIndex > -1){
         citylist.splice(index,cityIndex);//issue?
     }
-    console.log("addCity button "+ chosenCity);
+    console.log("addCity button "+ chosenCity.name);
     citylist.push(chosenCity);
     saveCitylist();
     loadCitylist();
 }
 
 $("#cities").on("click",".cityBtn", function(){
-    chosenCity=$(this).text();
-    chosenCityArry=chosenCity.split(", ");//split issue??
-    console.log(chosenCityArry);
-    var latlonUrl="http://api.openweathermap.org/geo/1.0/direct?q="+chosenCityArry[0]+","+chosenCityArry[1]+","+chosenCityArry[2]+"&limit=5&appid=0c83ee7b5026cd0b1fbb61322219f621";
-    fetch(latlonUrl)
-    .then(function(response){
-        if(response.ok){
-            response.json().then(function(data){
-                console.log(data);
-                var lat = data[0].lat;
-                var lon = data[0].lon;
-                getWeather(lat,lon,chosenCityArry);
-            })
-        } else {
-            alert("Error: City "+ chosenCity+"Not Found");
-        }
-    })
-
+    chosenCity=[];
+    chosenCity.name=$(this).text();
+    chosenCity.lat=$(this).attr("data-lat");
+    chosenCity.lon=$(this).attr("data-lon");
+    console.log(chosenCity);
+    getWeather(chosenCity);
 })
 
-//temp need to remove later
+//function to display current weather
+var displayCurrentWeather=function(data) {
+    $(".currentlist").remove();
+    console.log("display current weather");
+    var iconcode=data.weather[0].icon;
+    var iconurl="http://openweathermap.org/img/w/" + iconcode + ".png";
+    var iconEl=document.createElement("span");
+        iconEl.className=("cicon");
+        iconEl.setAttribute=("src", iconurl);
+        console.log(iconurl);
+        console.log(iconEl);
+    var displayCityEl=document.createElement("h3");
+    displayCityEl.className="h3cityname mb-3 currentlist";
+    displayCityEl.textContent=chosenCity.name+" ("+moment().format("MMM Do YY, dddd")+")";
+    
+    var curTempEl=document.createElement("p");
+        curTempEl.classList=("mb-3 currentlist");
+        curTempEl.textContent="Temp: "+ data.main.temp+" °F";
+    var curWindEl=document.createElement("p");
+        curWindEl.classList=("mb-3 currentlist");
+        curWindEl.textContent="Wind: "+ data.wind.speed + " MPH";
+    var curHumidityEl=document.createElement("p");
+        curHumidityEl.classList=("mb-3 currentlist");
+        curHumidityEl.textContent="Humidity: "+ data.main.humidity + "%";
+    var currentEl=document.querySelector(".current");
+        currentEl.appendChild(displayCityEl);
+        currentEl.appendChild(iconEl);
+        currentEl.appendChild(curTempEl);
+        currentEl.appendChild(curWindEl);
+        currentEl.appendChild(curHumidityEl);
+}
+
+//function to dispaly 5-day weather forecast 
+var displayWeatherForecast=function(data){
+    console.log("display weather forecast");
+
+}
+
+// saveCitylist();//temp need to remove later
 loadCitylist();
