@@ -1,46 +1,50 @@
 var citylist = [
     {
         name: "Houston, Texas, US",
-        lati: 29.7589382,
-        lont: -95.3676974,
+        lat: 29.7589382,
+        lon: -95.3676974,
     },
     {
         name: "Dallas, Texas, US",
-        lati: 32.7762719,
-        lont: -96.7968559,
+        lat: 32.7762719,
+        lon: -96.7968559,
     }
 ];
 var citySeq = 0;
-
+var chosenCity=[];
 // need to solve 
 
 function loadCitylist(){
     $(".cityBtn").remove();
     citylist=JSON.parse(localStorage.getItem("cityList"));
     if (!citylist){
-        citylist ="";
+        citylist =[];
         return;
     }
     console.log(citylist);
     for (var i=0; i < (Math.min(10, citylist.length)); i++ ){
-        // debugger;
+        
         var cityEl= document.createElement("button");
-        cityEl.classList="cityBtn col-12 mt-3 rounded";
+        cityEl.classList="cityBtn col-12 my-2 rounded";
         cityEl.textContent=citylist[citylist.length-1-i].name;
-        cityEl.setAttribute("data-lat",citylist[citylist.length-1-i].lati);
-        cityEl.setAttribute("data-lon",citylist[citylist.length-1-i].lont); 
+        cityEl.setAttribute("data-lat",citylist[citylist.length-1-i].lat);
+        cityEl.setAttribute("data-lon",citylist[citylist.length-1-i].lon); 
         cityEl.setAttribute("data-city",citylist[citylist.length-1-i].name);
         cityEl.setAttribute("data-seq",citySeq);
         $("#cities").append(cityEl);
     }
-}
+};
 
 function saveCitylist(){
     localStorage.setItem("cityList",JSON.stringify(citylist));
-}
+};
 
 $(".searchBtn").on("click", function(){
     var cityText = $(".searchCity").val().trim();
+    if (!cityText){
+        alert("Please make sure you entered the city in the box!");
+        return;
+    }
     var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q="+cityText+"&limit=5&appid=0c83ee7b5026cd0b1fbb61322219f621";
     fetch(apiUrl)
     .then(function(response){
@@ -48,68 +52,68 @@ $(".searchBtn").on("click", function(){
             response.json().then(function(data){
                 console.log(data);
                 var chosenCity= pickCity(data);
-                var weather =data.list[0].weather;
-                var main=data.list[0].main;
-                console.log(weather);
-                console.log(main);
-                //call function to check city. here if there is a list then modal and choose
-
             })
         } else {
             alert("Error: City "+ cityText+"Not Found");
         }
     })
-})
+});
+
 $(".clearBtn").on("click",function(){
     //need to clean the list
    var clearQ = confirm("Are you sure you want to clear the city list?");
    if (clearQ){
-    citylist=""
+    citylist=[];
     saveCitylist();
     loadCitylist();
    }
-})
+});
 
 var pickCity=function(data) {
+
     if (data.length > 1){
+        $(".cityCandiBtn").remove();
+        //add cityCandiEl to the choice list
         for (var i=0; i<data.length; i++){
             var cityCandiEl=document.createElement("button");
             cityCandiEl.classList="cityCandiBtn col-11 mb-2";
             cityCandiEl.setAttribute("data-seq",i);
-            var chosenCity=[];
             chosenCity.name=data[i].name+", "+data[i].state+", "+data[i].country;
-                // chosenCity.lat=data[i].lat;
-                // chosenCity.lon=data[i].lon;
             cityCandiEl.textContent=chosenCity.name;
             var modalCityList= document.querySelector(".modal-citylist");
             modalCityList.appendChild(cityCandiEl);
         }
+
         $('#citiesList-modal').modal('show');
-        //not function. use click eventlistener
+        
         $(".modal-citylist").on("click", ".cityCandiBtn", function(){
             citySeq=$(this).attr("data-seq");
             console.log(data[0]);
             console.log(citySeq);
             $(".cityCandiBtn").remove();
-            $('#citiesList-modal').modal('hide');//no function yet
-            var chosenCity=[];
+            $('#citiesList-modal').modal('hide');//no function
+            $(".searchCity").val('');
             chosenCity.name=data[citySeq].name+", "+data[citySeq].state+", "+data[citySeq].country;
             chosenCity.lat=data[citySeq].lat;
             chosenCity.lon=data[citySeq].lon;
                 console.log(chosenCity);
-            getWeather(chosenCity);
             addCity(chosenCity);
+            getWeather(chosenCity);
+            return(chosenCity);
         })
+        //cancel button
         $(".cancelBtn").on("click",function(){
+            $(".cityCandiBtn").remove();
             $('#citiesList-modal').modal('hide');//no function yet
+            $(".searchCity").val('');
             $('searchCity').trigger("focus");
-            return;
+            return("[]");
         })
     }
     else {
+        $(".searchCity").val('');
         citySeq=0;
-        var chosenCity=[];
-        chosenCity.name=data[0].name+","+data[0].state+","+data[0].country;
+        chosenCity.name=data[0].name+", "+data[0].state+", "+data[0].country;
         chosenCity.lat=data[0].lat;
         chosenCity.lon=lon = data[0].lon;
         console.log(chosenCity);
@@ -118,7 +122,7 @@ var pickCity=function(data) {
         console.log(chosenCity);
         console.log("no click");
     }
-}
+};
 
 var getWeather=function(chosenCity) {
     console.log("get weather lat: "+ chosenCity.lat);
@@ -144,7 +148,7 @@ var getWeather=function(chosenCity) {
     .then(function(response){
         if(response.ok){
             response.json().then(function(data){
-                console.log(data);
+                // console.log(data);
                 displayWeatherForecast(data);
 
             })
@@ -152,28 +156,38 @@ var getWeather=function(chosenCity) {
             alert("Error: City "+ chosenCity.name+" Not Found");
         }
     });
-}
+};
 
 var addCity=function(chosenCity){
-    var cityIndex=citylist.indexOf(chosenCity);
-    console.log=cityIndex;
-    if(cityIndex > -1){
-        citylist.splice(index,cityIndex);//issue?
+    console.log(chosenCity);
+    for (i=0; i<citylist.length; i++){
+        if (chosenCity.name === citylist[i].name){
+            console.log(i);
+            console.log(citylist[i].name);
+            citylist.splice(i,1);//issue?
+            console.log(citylist);
+        }
     }
-    console.log("addCity button "+ chosenCity.name);
-    citylist.push(chosenCity);
+    // var cityIndex=citylist.indexOf(chosenCity);
+    console.log(chosenCity.name);//not displaying well
+    var newCityArr=[{name:"test", lat:0,lon:0}];
+        newCityArr[0].name=chosenCity.name;
+        newCityArr[0].lat=chosenCity.lat;
+        newCityArr[0].lon=chosenCity.lon;
+    citylist=citylist.concat(newCityArr);
+    console.log(chosenCity);
     saveCitylist();
     loadCitylist();
 }
 
 $("#cities").on("click",".cityBtn", function(){
-    chosenCity=[];
+    console.log(this);
     chosenCity.name=$(this).text();
-    chosenCity.lat=$(this).attr("data-lat");
-    chosenCity.lon=$(this).attr("data-lon");
+    chosenCity.lat=parseFloat($(this).attr("data-lat"));
+    chosenCity.lon=parseFloat($(this).attr("data-lon"));
     console.log(chosenCity);
     getWeather(chosenCity);
-})
+});
 
 //function to display current weather
 var displayCurrentWeather=function(data) {
@@ -181,9 +195,9 @@ var displayCurrentWeather=function(data) {
     console.log("display current weather");
     var iconcode=data.weather[0].icon;
     var iconurl="http://openweathermap.org/img/w/" + iconcode + ".png";
-    var iconEl=document.createElement("span");
-        iconEl.className=("cicon");
-        iconEl.setAttribute=("src", iconurl);
+    var iconEl=document.createElement("img");
+        iconEl.classList=("cicon currentlist");
+        iconEl.setAttribute("src", iconurl);
         console.log(iconurl);
         console.log(iconEl);
     var displayCityEl=document.createElement("h3");
@@ -205,13 +219,48 @@ var displayCurrentWeather=function(data) {
         currentEl.appendChild(curTempEl);
         currentEl.appendChild(curWindEl);
         currentEl.appendChild(curHumidityEl);
-}
+};
 
 //function to dispaly 5-day weather forecast 
 var displayWeatherForecast=function(data){
     console.log("display weather forecast");
+    $(".forecastCard").remove();
+    var forecastEl = document.querySelector(".forecast");
+        forecastEl.textConten=("5-Day Forecast:");
 
-}
+    for (var i=0; i <5; i++) {
+        var weatherCardEl = document.createElement("card");
+            weatherCardEl.classList=("forecastCard bg-dark text-white col-5 col-sm-5 col-md-4 col-lg-2 m-1 d-flex flex-column");
+        var cardDateEL=document.createElement("h5");
+            cardDateEL.className="mt-3"
+        cardDateEL.textContent=moment().add(i+1,'days').format('ll');
 
-// saveCitylist();//temp need to remove later
+        var t=(1+i)*8-1;
+
+        var iconcode=data.list[t].weather[0].icon;
+        var iconurl="http://openweathermap.org/img/w/" + iconcode + ".png";
+        var iconEl=document.createElement("img");
+            iconEl.className=("cicon");
+            iconEl.setAttribute("src", iconurl);
+        
+        
+        var foreTempEl=document.createElement("p");
+            foreTempEl.classList=("mb-3 currentlist");
+            foreTempEl.textContent="Temp: "+ data.list[t].main.temp+" °F";
+        var foreWindEl=document.createElement("p");
+            foreWindEl.classList=("mb-3 currentlist");
+            foreWindEl.textContent="Wind: "+ data.list[t].wind.speed + " MPH";
+        var foreHumidityEl=document.createElement("p");
+            foreHumidityEl.classList=("mb-3 currentlist");
+            foreHumidityEl.textContent="Humidity: "+ data.list[t].main.humidity + "%";
+        weatherCardEl.appendChild(cardDateEL);
+        weatherCardEl.appendChild(iconEl);
+        weatherCardEl.appendChild(foreTempEl);
+        weatherCardEl.appendChild(foreWindEl);
+        weatherCardEl.appendChild(foreHumidityEl);
+        forecastEl.appendChild(weatherCardEl);
+    }
+};
+
+//saveCitylist();//temp need to remove later
 loadCitylist();
