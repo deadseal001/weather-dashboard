@@ -12,8 +12,8 @@ var citylist = [
 ];
 var citySeq = 0;
 var chosenCity=[];
-// need to solve 
 
+//function loadCitylist add newest city to the top
 function loadCitylist(){
     $(".cityBtn").remove();
     citylist=JSON.parse(localStorage.getItem("cityList"));
@@ -35,10 +35,12 @@ function loadCitylist(){
     }
 };
 
+//Function saveCitylist
 function saveCitylist(){
     localStorage.setItem("cityList",JSON.stringify(citylist));
 };
 
+//event listener on the search button to search city name with the input
 $(".searchBtn").on("click", function(){
     var cityText = $(".searchCity").val().trim();
     if (!cityText){
@@ -59,6 +61,7 @@ $(".searchBtn").on("click", function(){
     })
 });
 
+//eventlistener on clearlist button 
 $(".clearBtn").on("click",function(){
     //need to clean the list
    var clearQ = confirm("Are you sure you want to clear the city list?");
@@ -69,11 +72,14 @@ $(".clearBtn").on("click",function(){
    }
 });
 
+//function pickCity. to list the candidate cities 
 var pickCity=function(data) {
 
+    //if more than one cities with the name, let user choose.
     if (data.length > 1){
         $(".cityCandiBtn").remove();
-        //add cityCandiEl to the choice list
+        
+        //list all the cities
         for (var i=0; i<data.length; i++){
             var cityCandiEl=document.createElement("button");
             cityCandiEl.classList="cityCandiBtn col-11 mb-2";
@@ -83,14 +89,15 @@ var pickCity=function(data) {
             var modalCityList= document.querySelector(".modal-citylist");
             modalCityList.appendChild(cityCandiEl);
         }
-
+        //promote modal and let users select one of the citie buttons
         $('#citiesList-modal').modal('show');
         
+        //choose one of the city buttons and display the weather details
         $(".modal-citylist").on("click", ".cityCandiBtn", function(){
             citySeq=$(this).attr("data-seq");
             console.log(data[0]);
             console.log(citySeq);
-            $(".cityCandiBtn").remove();
+            // $(".cityCandiBtn").remove();
             $('#citiesList-modal').modal('hide');//no function
             $(".searchCity").val('');
             chosenCity.name=data[citySeq].name+", "+data[citySeq].state+", "+data[citySeq].country;
@@ -124,6 +131,7 @@ var pickCity=function(data) {
     }
 };
 
+//funtion getWeather, get current weather and 5day weather forecast
 var getWeather=function(chosenCity) {
     console.log("get weather lat: "+ chosenCity.lat);
     console.log("get weather lon: "+ chosenCity.lon);
@@ -158,18 +166,21 @@ var getWeather=function(chosenCity) {
     });
 };
 
+//function addCity to add new city into the city button list
 var addCity=function(chosenCity){
     console.log(chosenCity);
+
+    //search the current citylist. if the city already exist, move the city button to the top of the list
     for (i=0; i<citylist.length; i++){
         if (chosenCity.name === citylist[i].name){
             console.log(i);
             console.log(citylist[i].name);
-            citylist.splice(i,1);//issue?
+            citylist.splice(i,1);
             console.log(citylist);
         }
     }
-    // var cityIndex=citylist.indexOf(chosenCity);
-    console.log(chosenCity.name);//not displaying well
+    
+    console.log(chosenCity.name);
     var newCityArr=[{name:"test", lat:0,lon:0}];
         newCityArr[0].name=chosenCity.name;
         newCityArr[0].lat=chosenCity.lat;
@@ -180,6 +191,7 @@ var addCity=function(chosenCity){
     loadCitylist();
 }
 
+//if user click city button, get the weather of the city.
 $("#cities").on("click",".cityBtn", function(){
     console.log(this);
     chosenCity.name=$(this).text();
@@ -262,5 +274,5 @@ var displayWeatherForecast=function(data){
     }
 };
 
-//saveCitylist();//temp need to remove later
+//load the citylist when open the page.
 loadCitylist();

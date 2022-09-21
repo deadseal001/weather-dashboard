@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" /> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
     />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
@@ -15,10 +14,11 @@
 </head>
 
 <body>
+    <!-- Header -->
     <header class="header1 col-12 d-flex my-2 justify-content-center">  
         <h1>Weather Dashboard</h1>
     </header>
-    
+    <!-- main body -->
     <main class="row">
         <div class="city col-lg-3 col-sm-4 col-12 col-md-4">
             <div class="col-12 border-bottom">
@@ -26,13 +26,14 @@
                 <input class="searchCity col-12 mb-3 rounded" id="city" placeholder="Input City Here"></input>
                 <button class="searchBtn col-12 mb-3 rounded" 
                 >Search</button> 
-                <button class="clearBtn col-6 col-md-5 mb-3 rounded">Clear</button>
+                <button class="clearBtn col-6 col-md-5 mb-3 rounded">Clear List</button>
             </div>
             <div id="cities" class="col-12"> 
-                <!-- class="d-flex flex-column-reverse" -->
                 <button class="cityBtn rounded">test</button>
             </div>
         </div>
+
+        <!-- weather display -->
         <div class="detail flex col-lg-9 col-sm-8 col-12 col-md-8">
             <div class="current col-12 rounded d-flex flex-column">
                 
@@ -46,12 +47,11 @@
 
     <!-- modal -->
     <div class="modal fade col-6 align-item-center" id="citiesList-modal" tabindex="-1" role="dialog" aria-labelledby="citylist-modal" aria-hidden="true">
-        <div class="modal-content">
+        <div class="modal-content modal-dialog">
             <div class="modal-header">
                 <h4 class="modal-title" id="choose-city-modal">Please choose from the following cities</h4>
             </div>
             <div class="modal-citylist d-flex flex-column align-item-center">
-                
             </div>
             <div class="modal-footer">
                 <button class="cancelBtn">Cancel</button>
