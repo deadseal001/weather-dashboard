@@ -1,25 +1,14 @@
-var citylist = [
-    {
-        name: "Houston, Texas, US",
-        lat: 29.7589382,
-        lon: -95.3676974,
-    },
-    {
-        name: "Dallas, Texas, US",
-        lat: 32.7762719,
-        lon: -96.7968559,
-    }
-];
-var citySeq = 0;
+var citylist = [];
 var chosenCity=[];
 
 //function loadCitylist add newest city to the top
 function loadCitylist(){
+    console.log("loadcity function");
     $(".cityBtn").remove();
     citylist=JSON.parse(localStorage.getItem("cityList"));
     if (!citylist){
         citylist =[];
-        return;
+        // return;
     }
     console.log(citylist);
     for (var i=0; i < (Math.min(10, citylist.length)); i++ ){
@@ -30,18 +19,20 @@ function loadCitylist(){
         cityEl.setAttribute("data-lat",citylist[citylist.length-1-i].lat);
         cityEl.setAttribute("data-lon",citylist[citylist.length-1-i].lon); 
         cityEl.setAttribute("data-city",citylist[citylist.length-1-i].name);
-        cityEl.setAttribute("data-seq",citySeq);
         $("#cities").append(cityEl);
     }
 };
 
 //Function saveCitylist
 function saveCitylist(){
+    console.log("savecitylist function");
+    console.log(citylist);
     localStorage.setItem("cityList",JSON.stringify(citylist));
 };
 
 //event listener on the search button to search city name with the input
 $(".searchBtn").on("click", function(){
+    console.log("search button function");
     var cityText = $(".searchCity").val().trim();
     if (!cityText){
         alert("Please make sure you entered the city in the box!");
@@ -53,19 +44,29 @@ $(".searchBtn").on("click", function(){
         if(response.ok){
             response.json().then(function(data){
                 console.log(data);
-                var chosenCity= pickCity(data);
+                if (data.length===0){
+                    $(".searchCity").val('');
+                    alert("Error: City "+ cityText+" Not Found");
+                    return;
+                } else{
+                pickCity(data);
+                }
             })
         } else {
-            alert("Error: City "+ cityText+"Not Found");
+            $(".searchCity").val('');
+            alert("Error: City "+ cityText+" Not Found");
         }
     })
 });
 
 //eventlistener on clearlist button 
 $(".clearBtn").on("click",function(){
+    console.log("clear button function");
     //need to clean the list
    var clearQ = confirm("Are you sure you want to clear the city list?");
    if (clearQ){
+    console.log("clear");
+    chosenCity=[];
     citylist=[];
     saveCitylist();
     loadCitylist();
@@ -74,6 +75,8 @@ $(".clearBtn").on("click",function(){
 
 //function pickCity. to list the candidate cities 
 var pickCity=function(data) {
+    console.log("pickCity function");
+    console.log(data);
 
     //if more than one cities with the name, let user choose.
     if (data.length > 1){
@@ -81,28 +84,29 @@ var pickCity=function(data) {
         
         //list all the cities
         for (var i=0; i<data.length; i++){
+
             var cityCandiEl=document.createElement("button");
             cityCandiEl.classList="cityCandiBtn col-11 mb-2";
             cityCandiEl.setAttribute("data-seq",i);
-            chosenCity.name=data[i].name+", "+data[i].state+", "+data[i].country;
-            cityCandiEl.textContent=chosenCity.name;
+            cityCandiEl.setAttribute("data-lon",data[i].lon);
+            cityCandiEl.setAttribute("data-lat",data[i].lat);
+            cityCandiEl.textContent=data[i].name+", "+data[i].state+", "+data[i].country
             var modalCityList= document.querySelector(".modal-citylist");
             modalCityList.appendChild(cityCandiEl);
+            console.log(chosenCity);
         }
         //promote modal and let users select one of the citie buttons
         $('#citiesList-modal').modal('show');
         
         //choose one of the city buttons and display the weather details
         $(".modal-citylist").on("click", ".cityCandiBtn", function(){
-            citySeq=$(this).attr("data-seq");
             console.log(data[0]);
-            console.log(citySeq);
             // $(".cityCandiBtn").remove();
-            $('#citiesList-modal').modal('hide');//no function
+            $('#citiesList-modal').modal('hide');
             $(".searchCity").val('');
-            chosenCity.name=data[citySeq].name+", "+data[citySeq].state+", "+data[citySeq].country;
-            chosenCity.lat=data[citySeq].lat;
-            chosenCity.lon=data[citySeq].lon;
+            chosenCity.name=$(this).text();
+            chosenCity.lat=$(this).attr("data-lat");
+            chosenCity.lon=$(this).attr("data-lon");
                 console.log(chosenCity);
             addCity(chosenCity);
             getWeather(chosenCity);
@@ -119,7 +123,6 @@ var pickCity=function(data) {
     }
     else {
         $(".searchCity").val('');
-        citySeq=0;
         chosenCity.name=data[0].name+", "+data[0].state+", "+data[0].country;
         chosenCity.lat=data[0].lat;
         chosenCity.lon=lon = data[0].lon;
@@ -127,15 +130,12 @@ var pickCity=function(data) {
         getWeather(chosenCity);
         addCity(chosenCity);
         console.log(chosenCity);
-        console.log("no click");
     }
 };
 
 //funtion getWeather, get current weather and 5day weather forecast
 var getWeather=function(chosenCity) {
-    console.log("get weather lat: "+ chosenCity.lat);
-    console.log("get weather lon: "+ chosenCity.lon);
-    console.log("get weather city: "+ chosenCity.name);
+    console.log("getweather function"+ chosenCity.name);
     var currentUrl="https://api.openweathermap.org/data/2.5/weather?lat="+chosenCity.lat+"&lon="+chosenCity.lon+"&units=imperial&appid=9086c76e37dd7754dfe04ec92e3de71d";
     var weathApiUrl="https://api.openweathermap.org/data/2.5/forecast?lat="+chosenCity.lat+"&lon="+chosenCity.lon+"&units=imperial&appid=9086c76e37dd7754dfe04ec92e3de71d";
     // get current weather
@@ -143,7 +143,7 @@ var getWeather=function(chosenCity) {
     .then(function(response){
         if(response.ok){
             response.json().then(function(data){
-                console.log(data);
+                debugger;
                 displayCurrentWeather(data);
             })
         } else {
@@ -168,9 +168,11 @@ var getWeather=function(chosenCity) {
 
 //function addCity to add new city into the city button list
 var addCity=function(chosenCity){
+    console.log("add city function ");
     console.log(chosenCity);
 
     //search the current citylist. if the city already exist, move the city button to the top of the list
+    console.log(citylist);
     for (i=0; i<citylist.length; i++){
         if (chosenCity.name === citylist[i].name){
             console.log(i);
@@ -187,12 +189,13 @@ var addCity=function(chosenCity){
         newCityArr[0].lon=chosenCity.lon;
     citylist=citylist.concat(newCityArr);
     console.log(chosenCity);
-    saveCitylist();
+    saveCitylist(citylist);
     loadCitylist();
 }
 
 //if user click city button, get the weather of the city.
 $("#cities").on("click",".cityBtn", function(){
+    console.log("citybutton click");
     console.log(this);
     chosenCity.name=$(this).text();
     chosenCity.lat=parseFloat($(this).attr("data-lat"));
@@ -203,15 +206,14 @@ $("#cities").on("click",".cityBtn", function(){
 
 //function to display current weather
 var displayCurrentWeather=function(data) {
+    debugger;
+    console.log("displayweather");
     $(".currentlist").remove();
-    console.log("display current weather");
     var iconcode=data.weather[0].icon;
     var iconurl="http://openweathermap.org/img/w/" + iconcode + ".png";
     var iconEl=document.createElement("img");
         iconEl.classList=("cicon currentlist");
         iconEl.setAttribute("src", iconurl);
-        console.log(iconurl);
-        console.log(iconEl);
     var displayCityEl=document.createElement("h3");
     displayCityEl.className="h3cityname mb-3 currentlist";
     displayCityEl.textContent=chosenCity.name+" ("+moment().format("MMM Do YY, dddd")+")";
@@ -235,7 +237,6 @@ var displayCurrentWeather=function(data) {
 
 //function to dispaly 5-day weather forecast 
 var displayWeatherForecast=function(data){
-    console.log("display weather forecast");
     $(".forecastCard").remove();
     var forecastEl = document.querySelector(".forecast");
         forecastEl.textConten=("5-Day Forecast:");
