@@ -87,7 +87,6 @@ var pickCity=function(data) {
 
             var cityCandiEl=document.createElement("button");
             cityCandiEl.classList="cityCandiBtn col-11 mb-2";
-            cityCandiEl.setAttribute("data-seq",i);
             cityCandiEl.setAttribute("data-lon",data[i].lon);
             cityCandiEl.setAttribute("data-lat",data[i].lat);
             cityCandiEl.textContent=data[i].name+", "+data[i].state+", "+data[i].country
@@ -115,7 +114,7 @@ var pickCity=function(data) {
         //cancel button
         $(".cancelBtn").on("click",function(){
             $(".cityCandiBtn").remove();
-            $('#citiesList-modal').modal('hide');//no function yet
+            $('#citiesList-modal').modal('hide');
             $(".searchCity").val('');
             $('searchCity').trigger("focus");
             return("[]");
@@ -143,8 +142,9 @@ var getWeather=function(chosenCity) {
     .then(function(response){
         if(response.ok){
             response.json().then(function(data){
-                debugger;
+                console.log("call displaycurrent weather function");
                 displayCurrentWeather(data);
+                return;
             })
         } else {
             alert("Error: City "+ chosenCity.name+" Not Found");
@@ -156,9 +156,9 @@ var getWeather=function(chosenCity) {
     .then(function(response){
         if(response.ok){
             response.json().then(function(data){
-                // console.log(data);
+                // console.log("call display forecast weather function");
                 displayWeatherForecast(data);
-
+                return;
             })
         } else {
             alert("Error: City "+ chosenCity.name+" Not Found");
@@ -206,7 +206,7 @@ $("#cities").on("click",".cityBtn", function(){
 
 //function to display current weather
 var displayCurrentWeather=function(data) {
-    debugger;
+    // debugger;
     console.log("displayweather");
     $(".currentlist").remove();
     var iconcode=data.weather[0].icon;
