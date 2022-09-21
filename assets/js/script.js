@@ -38,7 +38,7 @@ $(".searchBtn").on("click", function(){
         alert("Please make sure you entered the city in the box!");
         return;
     }
-    var apiUrl = "http://api.openweathermap.org/geo/1.0/direct?q="+cityText+"&limit=5&appid=0c83ee7b5026cd0b1fbb61322219f621";
+    var apiUrl = "https://api.openweathermap.org/geo/1.0/direct?q="+cityText+"&limit=5&appid=0c83ee7b5026cd0b1fbb61322219f621";
     fetch(apiUrl)
     .then(function(response){
         if(response.ok){
@@ -210,7 +210,7 @@ var displayCurrentWeather=function(data) {
     console.log("displayweather");
     $(".currentlist").remove();
     var iconcode=data.weather[0].icon;
-    var iconurl="http://openweathermap.org/img/w/" + iconcode + ".png";
+    var iconurl="https://openweathermap.org/img/w/" + iconcode + ".png";
     var iconEl=document.createElement("img");
         iconEl.classList=("cicon currentlist");
         iconEl.setAttribute("src", iconurl);
@@ -251,7 +251,7 @@ var displayWeatherForecast=function(data){
         var t=(1+i)*8-1;
 
         var iconcode=data.list[t].weather[0].icon;
-        var iconurl="http://openweathermap.org/img/w/" + iconcode + ".png";
+        var iconurl="https://openweathermap.org/img/w/" + iconcode + ".png";
         var iconEl=document.createElement("img");
             iconEl.className=("cicon");
             iconEl.setAttribute("src", iconurl);
