@@ -108,6 +108,7 @@ var pickCity=function(data) {
             chosenCity.lon=$(this).attr("data-lon");
                 console.log(chosenCity);
             addCity(chosenCity);
+            console.log("clicked");
             getWeather(chosenCity);
             return(chosenCity);
         })
