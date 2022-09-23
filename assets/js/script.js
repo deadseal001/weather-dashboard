@@ -97,28 +97,13 @@ var pickCity=function(data) {
         //promote modal and let users select one of the citie buttons
         $('#citiesList-modal').modal('show');
         
-        //choose one of the city buttons and display the weather details
-        $(".modal-citylist").on("click", ".cityCandiBtn", function(){
-            console.log(data[0]);
-            // $(".cityCandiBtn").remove();
-            $('#citiesList-modal').modal('hide');
-            $(".searchCity").val('');
-            chosenCity.name=$(this).text();
-            chosenCity.lat=$(this).attr("data-lat");
-            chosenCity.lon=$(this).attr("data-lon");
-                console.log(chosenCity);
-            addCity(chosenCity);
-            console.log("clicked");
-            getWeather(chosenCity);
-            return(chosenCity);
-        })
+
         //cancel button
         $(".cancelBtn").on("click",function(){
             $(".cityCandiBtn").remove();
             $('#citiesList-modal').modal('hide');
             $(".searchCity").val('');
             $('searchCity').trigger("focus");
-            return("[]");
         })
     }
     else {
@@ -143,7 +128,7 @@ var getWeather=function(chosenCity) {
     .then(function(response){
         if(response.ok){
             response.json().then(function(data){
-                console.log("call displaycurrent weather function");
+                console.log("call displaycurrent weather function"+chosenCity.name);
                 displayCurrentWeather(data);
                 return;
             })
@@ -170,7 +155,7 @@ var getWeather=function(chosenCity) {
 //function addCity to add new city into the city button list
 var addCity=function(chosenCity){
     console.log("add city function ");
-    console.log(chosenCity);
+    // console.log(chosenCity);
 
     //search the current citylist. if the city already exist, move the city button to the top of the list
     console.log(citylist);
@@ -278,3 +263,18 @@ var displayWeatherForecast=function(data){
 
 //load the citylist when open the page.
 loadCitylist();
+
+//eventlistener for  modal citylist
+//choose one of the city buttons and display the weather details
+$(".modal-citylist").on("click", ".cityCandiBtn", function(){
+    // $(".cityCandiBtn").remove();
+    $('#citiesList-modal').modal('hide');
+    $(".searchCity").val('');
+    chosenCity.name=$(this).text();
+    chosenCity.lat=$(this).attr("data-lat");
+    chosenCity.lon=$(this).attr("data-lon");
+        console.log(chosenCity);
+    addCity(chosenCity);
+    console.log("clicked");
+    getWeather(chosenCity);
+})
