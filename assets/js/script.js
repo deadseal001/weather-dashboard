@@ -10,7 +10,7 @@ function loadCitylist(){
         citylist =[];
         // return;
     }
-    console.log(citylist);
+    // console.log(citylist);
     for (var i=0; i < (Math.min(10, citylist.length)); i++ ){
         
         var cityEl= document.createElement("button");
@@ -92,7 +92,6 @@ var pickCity=function(data) {
             cityCandiEl.textContent=data[i].name+", "+data[i].state+", "+data[i].country
             var modalCityList= document.querySelector(".modal-citylist");
             modalCityList.appendChild(cityCandiEl);
-            console.log(chosenCity);
         }
         //promote modal and let users select one of the citie buttons
         $('#citiesList-modal').modal('show');
@@ -161,10 +160,10 @@ var addCity=function(chosenCity){
     console.log(citylist);
     for (i=0; i<citylist.length; i++){
         if (chosenCity.name === citylist[i].name){
-            console.log(i);
+            // console.log(i);
             console.log(citylist[i].name);
             citylist.splice(i,1);
-            console.log(citylist);
+            // console.log(citylist);
         }
     }
     
@@ -273,8 +272,7 @@ $(".modal-citylist").on("click", ".cityCandiBtn", function(){
     chosenCity.name=$(this).text();
     chosenCity.lat=$(this).attr("data-lat");
     chosenCity.lon=$(this).attr("data-lon");
-        console.log(chosenCity);
+    // console.log(chosenCity);
     addCity(chosenCity);
-    console.log("clicked");
     getWeather(chosenCity);
 })
