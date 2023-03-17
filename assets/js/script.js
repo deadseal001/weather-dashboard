@@ -228,7 +228,7 @@ var displayWeatherForecast=function(data){
 
     for (var i=0; i <5; i++) {
         var weatherCardEl = document.createElement("card");
-            weatherCardEl.classList=("forecastCard bg-dark text-white col-5 col-sm-5 col-md-4 col-lg-2 m-1 d-flex flex-column");
+            weatherCardEl.classList=("forecastCard bg-success p-2 text-white bg-opacity-75 text-white col-5 col-sm-5 col-md-4 col-lg-2 m-1 d-flex flex-column");
         var cardDateEL=document.createElement("h5");
             cardDateEL.className="mt-3"
         cardDateEL.textContent=moment().add(i+1,'days').format('ll');
